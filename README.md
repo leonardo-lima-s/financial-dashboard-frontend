@@ -21,7 +21,7 @@ The **Financial Dashboard Frontend** is the user interface layer of the Financia
 
 3. **Start the application:**
    ```bash
-   npm start
+   npm run dev
    ```
 
 ## Contributing
