@@ -7,9 +7,6 @@ import {
 	Card,
 	CardBody,
 	Center,
-	Alert,
-	AlertIcon,
-	AlertTitle,
 	Flex,
 	FormControl,
 	FormLabel,
@@ -38,10 +35,19 @@ function Login() {
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [success, setSuccess] = useState("");
-	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+	const toast = useToast();
+
+	const showToastMessage = ({ title, description, status, duration, isClosable }) => {
+		toast({
+			title,
+			description,
+			status,
+			duration,
+			isClosable,
+		});
+	};
 
 	const submitHandler = async (event) => {
 		event.preventDefault();
@@ -57,12 +63,15 @@ function Login() {
 		xhr.setRequestHeader("Content-Type", "application/json");
 		xhr.onload = function () {
 			if (xhr.status === 200) {
-				setSuccess("Login realizado com sucesso");
-				setIsLoading(false);
-				setIsLoggedIn(true);
 				navigate("/home");
 			} else {
-				setError("Invalid username or password");
+				showToastMessage({
+					title: "Erro ao logar",
+					description: `Não foi possivel realizar o login. Motivo: ${xhr.responseText}`,
+					status: "error",
+					duration: 9000,
+					isClosable: true,
+				});
 				setIsLoading(false);
 			}
 		};
@@ -76,13 +85,11 @@ function Login() {
 		const [nameSignup, setNameSignup] = useState("");
 		const [emailSignup, setEmailSignup] = useState("");
 		const [passwordSignup, setPasswordSignup] = useState("");
-		const toast = useToast();
 
 		const signupHandler = async (event) => {
 			event.preventDefault();
 			const body = JSON.stringify({ userName: nameSignup, email: emailSignup, password: passwordSignup });
 			await doSignup(body);
-			onClose();
 		};
 
 		const doSignup = async (body) => {
@@ -92,17 +99,19 @@ function Login() {
 			xhr.onload = function () {
 				if (xhr.status === 201) {
 					const { userName } = JSON.parse(xhr.responseText);
-					toast({
+					showToastMessage({
 						title: "Usuário criado com sucesso!",
 						description: `Usuário ${userName} foi criado com sucesso!`,
 						status: "success",
-						duration: 1500,
+						duration: 5000,
 						isClosable: true,
 					});
+
+					onClose();
 				} else {
-					toast({
+					showToastMessage({
 						title: "Erro no cadastro",
-						description: "Não foi possível realizar o cadastro",
+						description: `Não foi possível realizar o cadastro. Motivo: ${xhr.responseText}`,
 						status: "error",
 						duration: 9000,
 						isClosable: true,
@@ -166,27 +175,15 @@ function Login() {
 										}}
 									/>
 								</FormControl>
-								<ModalFooter>
-									<Button
-										bg="#2da44e"
-										color="white"
-										size="sm"
-										_hover={{ bg: "#2c974b" }}
-										_active={{ bg: "#298e46" }}
-										onClick={signupHandler}
-									>
+								<ModalFooter align="left">
+									{/* <Stack spacing="1" display="inline" align="left"> */}
+									<Button size="sm" onClick={signupHandler} colorScheme="green" mr="5%">
 										{"Cadastrar"}
 									</Button>
-									<Button
-										bg="#2da44e"
-										color="white"
-										size="sm"
-										_hover={{ bg: "#2c974b" }}
-										_active={{ bg: "#298e46" }}
-										onClick={onClose}
-									>
+									<Button size="sm" onClick={onClose} variant="ghost" mr="-7%">
 										{"Fechar"}
 									</Button>
+									{/* </Stack> */}
 								</ModalFooter>
 							</form>
 						</ModalBody>
@@ -207,35 +204,11 @@ function Login() {
 									Login
 								</Heading>
 							</VStack>
-							<Card
-								bg="#f6f8fa"
-								variant="outline"
-								borderColor="#d8dee4"
-								w="308px"
-								size="lg"
-								borderRadius={8}
-								boxShadow="lg"
-							>
+							<Card variant="elevated" borderColor="#d8dee4" w="308px" size="lg" boxShadow="lg" padding="9%">
 								<CardBody>
 									<form onSubmit={submitHandler}>
-										{error && !isLoggedIn && (
-											<Alert status="error" variant="solid">
-												<AlertIcon />
-												<AlertTitle>{error}</AlertTitle>
-											</Alert>
-										)}
-										{isLoggedIn && (
-											<Alert status="success" variant="solid">
-												<AlertIcon />
-												<AlertTitle>{success}</AlertTitle>
-											</Alert>
-										)}
-
 										<Stack spacing="4">
 											<FormControl isRequired>
-												<FormLabel size="sm" color={colorMode === "dark" ? "black" : "black"}>
-													E-mail
-												</FormLabel>
 												<Input
 													type="text"
 													bg="white"
@@ -247,13 +220,11 @@ function Login() {
 													onChange={(e) => {
 														setEmail(e.target.value);
 													}}
+													placeholder="Email"
 												/>
 											</FormControl>
 											<FormControl isRequired>
 												<HStack justify="space-between">
-													<FormLabel size="sm" color={colorMode === "dark" ? "black" : "black"}>
-														Senha
-													</FormLabel>
 													<Button as="a" href="#" variant="link" size="xs" color="#0969da" fontWeight="500">
 														Esqueceu sua senha?
 													</Button>
@@ -269,17 +240,11 @@ function Login() {
 													onChange={(e) => {
 														setPassword(e.target.value);
 													}}
+													placeHolder="Senha"
 												/>
 											</FormControl>
 
-											<Button
-												type="submit"
-												bg="#2da44e"
-												color="white"
-												size="sm"
-												_hover={{ bg: "#2c974b" }}
-												_active={{ bg: "#298e46" }}
-											>
+											<Button type="submit" colorScheme="green" size="sm" borderRadius="6px">
 												{isLoading ? <CircularProgress isIndeterminate size="24px" color="teal" /> : "Logar"}
 											</Button>
 										</Stack>
@@ -288,15 +253,7 @@ function Login() {
 
 									<br></br>
 									<Stack spacing="4">
-										<Button
-											type="submit"
-											bg="#2da44e"
-											color="white"
-											size="sm"
-											_hover={{ bg: "#2c974b" }}
-											_active={{ bg: "#298e46" }}
-											onClick={onOpen}
-										>
+										<Button size="sm" onClick={onOpen} variant="ghost">
 											{"Cadastrar"}
 										</Button>
 									</Stack>
