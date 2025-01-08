@@ -26,6 +26,7 @@ import {
 	ModalCloseButton,
 	useDisclosure,
 	useToast,
+	FormErrorMessage,
 } from "@chakra-ui/react";
 
 function Login() {
@@ -86,6 +87,10 @@ function Login() {
 		const [emailSignup, setEmailSignup] = useState("");
 		const [passwordSignup, setPasswordSignup] = useState("");
 
+		const isUserNameInvalid = nameSignup === "";
+		const isEmailInvalid = emailSignup === "";
+		const isPasswordInvalid = passwordSignup === "";
+
 		const signupHandler = async (event) => {
 			event.preventDefault();
 			const body = JSON.stringify({ userName: nameSignup, email: emailSignup, password: passwordSignup });
@@ -121,6 +126,7 @@ function Login() {
 
 			xhr.send(body);
 		};
+
 		return (
 			<>
 				<Modal isOpen={isOpen} onClose={onClose} isCentered={true}>
@@ -130,7 +136,7 @@ function Login() {
 						<ModalCloseButton />
 						<ModalBody pb={6}>
 							<form>
-								<FormControl isRequired>
+								<FormControl isInvalid={isUserNameInvalid}>
 									<FormLabel>Nome</FormLabel>
 									<Input
 										type="text"
@@ -144,6 +150,11 @@ function Login() {
 											setNameSignup(e.target.value);
 										}}
 									/>
+									{!isUserNameInvalid ? (
+										<></>
+									) : (
+										<FormErrorMessage>Campo nome do usuário é obrigatório.</FormErrorMessage>
+									)}
 								</FormControl>
 								<FormControl isRequired>
 									<FormLabel>Email</FormLabel>
@@ -159,6 +170,7 @@ function Login() {
 											setEmailSignup(e.target.value);
 										}}
 									/>
+									{!isEmailInvalid ? <></> : <FormErrorMessage>Campo e-mail é obrigatório.</FormErrorMessage>}
 								</FormControl>
 								<FormControl isRequired>
 									<FormLabel>Senha</FormLabel>
@@ -174,6 +186,7 @@ function Login() {
 											setPasswordSignup(e.target.value);
 										}}
 									/>
+									{!isPasswordInvalid ? <></> : <FormErrorMessage>Campo senha é obrigatório.</FormErrorMessage>}
 								</FormControl>
 								<ModalFooter align="left">
 									{/* <Stack spacing="1" display="inline" align="left"> */}
@@ -240,7 +253,7 @@ function Login() {
 													onChange={(e) => {
 														setPassword(e.target.value);
 													}}
-													placeHolder="Senha"
+													placeholder="Senha"
 												/>
 											</FormControl>
 
